@@ -1,6 +1,12 @@
 require('./config/config');
 
 const express = require('express');
+// Using Node.js `require()`
+const mongoose = require('mongoose');
+
+// Using ES6 imports
+//import mongoose from 'mongoose';
+
 const app = express();
 const bodyParser = require('body-parser');
 
@@ -10,39 +16,29 @@ app.use(bodyParser.urlencoded({ extended: false }));
 // parse application/json
 app.use(bodyParser.json());
 
-app.get('/usuario', function(req, res) {
-    res.json('getUsuarios');
-});
+app.use(require('./routes/usuario'));
 
-app.post('/usuario', function(req, res) {
-
-    let body = req.body;
-
-    if (body.nombre === undefined) {
-        res.status(400).json({
-            ok: false,
-            mensaje: 'El nombre es necesario',
-        });
+mongoose.connect(process.env.URLDB, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useFindAndModify: false,
+    useCreateIndex: true
+}, (err, res) => {
+    if (err) {
+        throw err;
     } else {
-        res.json({
-            persona: body
-        });
+        console.log('Base de datos oline xP');
     }
-
-
 });
 
-app.put('/usuario/:id', function(req, res) {
-    let id = req.params.id;
+// mongoose.connect('mongodb://localhost:27017/cafe', (err, res) => {
+//     if (err) {
+//         throw err;
+//     } else {
 
-    res.json({
-        id
-    });
-});
-
-app.delete('/usuario', function(req, res) {
-    res.json('deleteUsuarios');
-});
+//         console.log('Base de datos online');
+//     }
+// });
 
 app.listen(process.env.PORT, () => {
     console.log('Escuchando puerto: ', process.env.PORT);
