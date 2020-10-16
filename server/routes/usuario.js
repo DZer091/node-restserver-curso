@@ -2,10 +2,16 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const _ = require('underscore');
 const Usuario = require('../models/usuario');
-const usuario = require('../models/usuario');
+const tokenazo = require('../middlewares/autenticacion');
 const app = express();
 
-app.get('/usuario', function(req, res) {
+app.get('/usuario', tokenazo.verificaToken, (req, res) => {
+
+    // return res.json({
+    //     usuario: req.usuario,
+    //     nombre: req.usuario.nombre,
+    //     email: req.usuario.email
+    // });
 
     let desde = req.query.desde || 0;
     let limite = req.query.limite || 5;
@@ -40,7 +46,7 @@ app.get('/usuario', function(req, res) {
 
 });
 
-app.post('/usuario', function(req, res) {
+app.post('/usuario', [tokenazo.verificaToken, tokenazo.verificaAdmin_Role], function(req, res) {
 
     let body = req.body;
 
@@ -81,7 +87,7 @@ app.post('/usuario', function(req, res) {
 
 });
 
-app.put('/usuario/:id', function(req, res) { //put se entiende por la actualización el registro
+app.put('/usuario/:id', [tokenazo.verificaToken, tokenazo.verificaAdmin_Role], function(req, res) { //put se entiende por la actualización el registro
 
     let id = req.params.id;
     let body = _.pick(req.body, ['nombre', 'email', 'img', 'role', 'estado']);
@@ -109,7 +115,7 @@ app.put('/usuario/:id', function(req, res) { //put se entiende por la actualizac
 
 });
 
-app.delete('/usuario/:id', function(req, res) {
+app.delete('/usuario/:id', [tokenazo.verificaToken, tokenazo.verificaAdmin_Role], function(req, res) {
 
     let id = req.params.id;
 
